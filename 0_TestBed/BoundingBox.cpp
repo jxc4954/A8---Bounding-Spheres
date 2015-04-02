@@ -68,6 +68,7 @@ void BoundingBox::GenerateBoundingBox(String a_sInstanceName)
 	{
 		m_sName = a_sInstanceName;
 		
+		//gets number of vertices in shape, grabs min and max by cycling through vertices, calculates centroid through average, scales vector to shape 
 		std::vector<vector3> lVertices = pMeshMngr->GetVertices(m_sName);
 		unsigned int nVertices = lVertices.size();
 		m_v3Centroid = lVertices[0];

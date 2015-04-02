@@ -1,5 +1,5 @@
 #include "BoundingBoxManagerSingleton.h"
-
+#include "BoundingBox.h"
 //  BoundingBoxManagerSingleton
 BoundingBoxManagerSingleton* BoundingBoxManagerSingleton::m_pInstance = nullptr;
 void BoundingBoxManagerSingleton::Init(void)
@@ -137,8 +137,22 @@ void BoundingBoxManagerSingleton::CalculateCollision(void)
 			{
 				//If the distance between the center of both Boxes is less than the sum of their radius there is a collision
 				//if(glm::distance(lCentroid[i], lCentroid[j]) < (m_lBox[i]->GetRadius() + m_lBox[j]->GetRadius()))
+				
+					//m_v3Centroid += lVertices[nVertex];
 
-					m_lColor[i] = m_lColor[j] = MERED; //We make the Boxes red
+					//collision not quite working, theoretically should calculate for overlap of min and max values for each axis, color of shapes changes on collision
+					if(lCentroid[i].x > lCentroid[j].x && lCentroid[i].x < lCentroid[j].x)
+					{
+						m_lColor[i] = m_lColor[j] = MERED; //We make the Boxes red
+					}
+					else if(lCentroid[i].y > lCentroid[j].y && lCentroid[i].y < lCentroid[j].y)
+					{
+						m_lColor[i] = m_lColor[j] = MERED; //We make the Boxes red
+					}
+					else if(lCentroid[i].z > lCentroid[j].z && lCentroid[i].z < lCentroid[j].z)
+					{
+						m_lColor[i] = m_lColor[j] = MERED; //We make the Boxes red
+					}
 			}
 		}
 	}

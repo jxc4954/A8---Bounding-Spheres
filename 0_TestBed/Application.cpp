@@ -90,6 +90,7 @@ void ApplicationClass::Update (void)
 	{
 		fRunTime += fTimeSpan; //update the run time count
 		matrix4 m4Steve = glm::rotate(matrix4(IDENTITY), fRunTime * 15, vector3( 0.0f,-1.0f, 0.0f));
+
 		matrix4 m4Zombie = glm::translate(vector3(-6.0f, 0.0f, 0.0f));
 		matrix4 m4Cow = glm::translate(vector3(-3.0f, 0.0f, 0.0f));
 		matrix4 m4Pig = glm::translate(vector3(6.0f, 0.0f, 0.0f));
@@ -101,6 +102,7 @@ void ApplicationClass::Update (void)
 		m_pMeshMngr->SetModelMatrix(m4Cow, "Cow");
 
 		std::vector<vector3> lvertex = m_pMeshMngr->GetVertices("Steve");
+
 		int numVertices = static_cast<int>(lvertex.size());
 		vector3 vCentroid = lvertex[0]; 
 
@@ -111,6 +113,10 @@ void ApplicationClass::Update (void)
 
 		vCentroid /= numVertices; 
 		m_pMeshMngr->AddAxisToQueue(m4Steve * glm::translate(vCentroid)* glm::scale(vector3(2.0f)));
+		
+		m_pMeshMngr->AddAxisToQueue(m4Pig * glm::translate(vCentroid)* glm::scale(vector3(2.0f)));
+		m_pMeshMngr->AddAxisToQueue(m4Cow * glm::translate(vCentroid)* glm::scale(vector3(2.0f)));
+		m_pMeshMngr->AddAxisToQueue(m4Zombie * glm::translate(vCentroid)* glm::scale(vector3(2.0f)));
 		float fDistance = 0.0f;
 
 		for(int vertex = 0; vertex < numVertices; vertex++)
@@ -122,6 +128,50 @@ void ApplicationClass::Update (void)
 			}
 		}
 		m_pMeshMngr->AddCubeToQueue(m4Steve * glm::translate(vCentroid)* glm::scale(vector3(2.0f)), MEBLUE, MERENDER::WIRE);
+		
+		m_pMeshMngr->AddCubeToQueue(m4Pig * glm::translate(vCentroid)* glm::scale(vector3(2.0f)), MEBLUE, MERENDER::WIRE);
+		m_pMeshMngr->AddCubeToQueue(m4Cow * glm::translate(vCentroid)* glm::scale(vector3(2.0f)), MEBLUE, MERENDER::WIRE);
+		m_pMeshMngr->AddCubeToQueue(m4Zombie * glm::translate(vCentroid)* glm::scale(vector3(2.0f)), MEBLUE, MERENDER::WIRE);
+	}
+	if(m_pMeshMngr->IsInstanceCreated("Creeper"))
+	{
+		std::vector<vector3> lvertex = m_pMeshMngr->GetVertices("Creeper");
+
+		int numVertices = static_cast<int>(lvertex.size());
+		vector3 vCentroid = lvertex[0]; 
+
+		for(int vertex = 1; vertex < numVertices; vertex++)
+		{
+			vCentroid += lvertex[vertex];
+		}
+
+		vCentroid /= numVertices; 
+
+		m_pMeshMngr->AddAxisToQueue(m_m4Creeper * glm::translate(vCentroid)* glm::scale(vector3(2.0f)));
+
+		float fDistance = 0.0f;
+
+		for(int vertex = 0; vertex < numVertices; vertex++)
+		{
+			float fNewDistance = glm::distance(vCentroid, lvertex[vertex]);
+			if(fDistance < fNewDistance)
+			{
+				fDistance = fNewDistance;
+			}
+		}
+		m_pMeshMngr->AddCubeToQueue(m_m4Creeper * glm::translate(vCentroid)* glm::scale(vector3(2.0f)), MEBLUE, MERENDER::WIRE);
+	}
+	else if(m_pMeshMngr->IsInstanceCreated("Pig"))
+	{
+
+	}
+	else if(m_pMeshMngr->IsInstanceCreated("Cow"))
+	{
+
+	}
+	else if(m_pMeshMngr->IsInstanceCreated("Zombie"))
+	{
+
 	}
 
 #pragma region Sphere Method
