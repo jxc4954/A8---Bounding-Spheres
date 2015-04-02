@@ -1,5 +1,5 @@
 #include "BoundingBoxManagerSingleton.h"
-#include "BoundingBox.h"
+
 //  BoundingBoxManagerSingleton
 BoundingBoxManagerSingleton* BoundingBoxManagerSingleton::m_pInstance = nullptr;
 void BoundingBoxManagerSingleton::Init(void)
@@ -48,12 +48,13 @@ BoundingBoxManagerSingleton::~BoundingBoxManagerSingleton(){Release();};
 int BoundingBoxManagerSingleton::GetBoxTotal(void){ return m_nBoxes; }
 
 //--- Non Standard Singleton Methods
-void BoundingBoxManagerSingleton::GenerateBoundingBox(String a_sInstanceName)
+void BoundingBoxManagerSingleton::GenerateBoundingBox(matrix4 a_mModelToWorld, String a_sInstanceName)
 {
 	MeshManagerSingleton* pMeshMngr = MeshManagerSingleton::GetInstance();
 	//Verify the instance is loaded
 	if(pMeshMngr->IsInstanceCreated(a_sInstanceName))
 	{//if it is check if the Box has already been created
+		int nBox = IdentifyBox(a_sInstanceName);
 		if(IdentifyBox(a_sInstanceName) == -1)
 		{
 			//Create a new bounding Box
@@ -69,6 +70,12 @@ void BoundingBoxManagerSingleton::GenerateBoundingBox(String a_sInstanceName)
 			//Increase the number of Boxes
 			m_nBoxes++;
 		}
+		else //If the box has already been created you will need to check its global orientation
+		{
+			m_lBox[nBox]->GenerateAxisAlignedBoundingBox(a_mModelToWorld);
+		}
+		nBox = IdentifyBox(a_sInstanceName);
+		m_lMatrix[nBox] = a_mModelToWorld;
 	}
 }
 
@@ -129,33 +136,32 @@ void BoundingBoxManagerSingleton::CalculateCollision(void)
 	}
 
 	//now the actual check for all Boxes among all Boxes (so... one by one), this is not the most optimal way, there is a more clever one
-	for(int i = 0; i < m_nBoxes; i++)
+	for(int i = 0; i < m_nBoxes - 1; i++)
 	{
-		for(int j = 0; j < m_nBoxes; j++)
+		for(int j = i + 1; j < m_nBoxes; j++)
 		{
-			if(i != j)
-			{
-				//If the distance between the center of both Boxes is less than the sum of their radius there is a collision
-				//if(glm::distance(lCentroid[i], lCentroid[j]) < (m_lBox[i]->GetRadius() + m_lBox[j]->GetRadius()))
-				
-					//m_v3Centroid += lVertices[nVertex];
+			//If the distance between the center of both Boxes is less than the radial sum there is a collision
+			//Assume they will be colliding unless they are not in the same space in X, Y or Z
+			//so we place them in global positions
+			vector3 v1Min = static_cast<vector3>(m_lMatrix[i] * vector4(m_lBox[i]->GetMinBBox(),1));
+			vector3 v1Max = static_cast<vector3>(m_lMatrix[i] * vector4(m_lBox[i]->GetMaxBBox(),1));
 
-					//collision not quite working, theoretically should calculate for overlap of min and max values for each axis, color of shapes changes on collision
-					if(lCentroid[i].x > lCentroid[j].x && lCentroid[i].x < lCentroid[j].x)
-					{
-						m_lColor[i] = m_lColor[j] = MERED; //We make the Boxes red
-					}
-					else if(lCentroid[i].y > lCentroid[j].y && lCentroid[i].y < lCentroid[j].y)
-					{
-						m_lColor[i] = m_lColor[j] = MERED; //We make the Boxes red
-					}
-					else if(lCentroid[i].z > lCentroid[j].z && lCentroid[i].z < lCentroid[j].z)
-					{
-						m_lColor[i] = m_lColor[j] = MERED; //We make the Boxes red
-					}
-			}
+			vector3 v2Min = static_cast<vector3>(m_lMatrix[j] * vector4(m_lBox[j]->GetMinBBox(),1));
+			vector3 v2Max = static_cast<vector3>(m_lMatrix[j] * vector4(m_lBox[j]->GetMaxBBox(),1));
+
+			bool bColliding = true;
+			if(v1Max.x < v2Min.x || v1Min.x > v2Max.x)
+				bColliding = false;
+			else if(v1Max.y < v2Min.y || v1Min.y > v2Max.y)
+				bColliding = false;
+			else if(v1Max.z < v2Min.z || v1Min.z > v2Max.z)
+				bColliding = false;
+
+			if(bColliding)
+				m_lColor[i] = m_lColor[j] = MERED; //Color the boxes red
 		}
 	}
+}
 	
 
 	////This way is more optimal, just half the checks are needed

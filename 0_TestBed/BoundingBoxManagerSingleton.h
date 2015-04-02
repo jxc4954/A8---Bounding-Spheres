@@ -25,7 +25,7 @@ public:
 	GenerateBoundingBox
 		Generates a bounding Box from the specified instance name and adds it to the list
 	*/
-	void GenerateBoundingBox(String a_sInstanceName);
+	void GenerateBoundingBox(matrix4 a_mModelToWorld,String a_sInstanceName);
 
 	/*
 	SetBoundingBoxSpace

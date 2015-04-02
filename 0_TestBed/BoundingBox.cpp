@@ -54,6 +54,8 @@ BoundingBox::~BoundingBox() { Release(); };
 
 /// ACCESSORS ///
 bool BoundingBox::IsInitialized(void){ return m_bInitialized; }
+vector3 BoundingBox::GetMinBBox(void){ return m_v3Min; }
+vector3 BoundingBox::GetMaxBBox(void){ return m_v3Max; }
 vector3 BoundingBox::GetCentroid(void){ return m_v3Centroid; }
 String BoundingBox::GetName(void){return m_sName;}
 
@@ -98,6 +100,10 @@ void BoundingBox::GenerateBoundingBox(String a_sInstanceName)
 
 		m_bInitialized = true;
 	}
+}
+void BoundingBox::GenerateAxisAlignedBoundingBox(matrix4 a_m4ModeltoWorld)
+{
+	//Generate the Axis Aligned Bounding Box here based on the Oriented Bounding Box
 }
 
 // 
